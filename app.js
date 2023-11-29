@@ -97,9 +97,9 @@ app.post('/districts/', async (request, response) => {
 
 app.get('/districts/:districtId/', async (request, response) => {
   const {districtId} = request.params
-  const getDistrict = `SELECT * FROM district wHERE district_id = ${districtId};`
+  const getDistrict = `SELECT * FROM district WHERE district_id = ${districtId};`
   const newDistrict = await db.get(getDistrict)
-  response.send(objectSnakeToCamel(newDistrict))
+  response.send(districtSnakeToCamel(newDistrict))
 })
 
 app.delete('/districts/:districtId/', async (request, response) => {
@@ -109,7 +109,7 @@ app.delete('/districts/:districtId/', async (request, response) => {
   response.send('District Removed')
 })
 
-app.post('/districts/:districtId/', async (request, response) => {
+app.put('/districts/:districtId/', async (request, response) => {
   const {districtId} = request.params
   const districtDetails = request.body
   const {districtName, stateId, cases, cured, active, deaths} = districtDetails
@@ -130,7 +130,7 @@ app.post('/districts/:districtId/', async (request, response) => {
 
 app.get('/states/:stateId/stats/', async (request, response) => {
   const {stateId} = request.params
-  const getStateReport = `SELECT SUM(cases) AS cases,SUM(active) AS active,SUM(deaths) AS deaths FROM district WHERE state_id = ${stateId};`
+  const getStateReport = `SELECT SUM(cases) AS cases, SUM(cured) AS cured, SUM(active) AS active, SUM(deaths) AS deaths FROM district WHERE state_id = ${stateId};`
   const stateReport = await db.get(getStateReport)
   response.send(reportSnakeToCamelCase(stateReport))
 })
@@ -139,7 +139,7 @@ app.get('/districts/:districtId/details/', async (request, response) => {
   const {districtId} = request.params
   const stateDetails = `SELECT state_name FROM state NATURAL JOIN district WHERE district_id = ${districtId};`
   const stateName = await db.get(stateDetails)
-  response.send(objectSnakeToCamel({stateName: stateName.state_name}))
+  response.send({stateName: stateName.state_name})
 })
 
 module.exports = app
